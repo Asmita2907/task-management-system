@@ -19,6 +19,7 @@ const LoginPage = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    if (error) setError('');
   };
 
   const handleSubmit = async (e) => {
