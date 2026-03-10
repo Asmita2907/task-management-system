@@ -6,8 +6,17 @@ const Dashboard = () => {
   const { tasks, getTaskStats } = useTask();
 
   const stats = getTaskStats();
-
   const recentTasks = tasks.slice(0, 5);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'No due date';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">

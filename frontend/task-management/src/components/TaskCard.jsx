@@ -44,6 +44,10 @@ const TaskCard = ({ task, onEdit, onDelete, onToggleComplete }) => {
     return new Date(dueDate) < new Date();
   };
 
+  const handleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return (
     <div className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 ${
       task.completed ? 'opacity-75' : ''
@@ -89,7 +93,7 @@ const TaskCard = ({ task, onEdit, onDelete, onToggleComplete }) => {
 
           <div className="flex items-center space-x-2 ml-4">
             <button
-              onClick={() => setIsExpanded(!isExpanded)}
+              onClick={handleExpand}
               className="text-gray-400 hover:text-gray-600 transition-colors"
               title="More details"
             >

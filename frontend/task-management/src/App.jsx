@@ -12,7 +12,7 @@ function App() {
     <AuthProvider>
       <TaskProvider>
         <Router>
-          <div className="App">
+          <div className="App min-h-screen bg-gray-50">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/login" element={<LoginPage />} />

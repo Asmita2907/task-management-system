@@ -44,6 +44,10 @@ const TaskFormPage = () => {
       newErrors.dueDate = 'Due date cannot be in the past';
     }
 
+    if (!formData.priority) {
+      newErrors.priority = 'Priority is required';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -164,19 +168,25 @@ const TaskFormPage = () => {
 
                   <div>
                     <label htmlFor="priority" className="block text-sm font-medium text-gray-700">
-                      Priority
+                      Priority *
                     </label>
                     <select
                       id="priority"
                       name="priority"
                       value={formData.priority}
                       onChange={handleChange}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                        errors.priority ? 'border-red-500' : 'border-gray-300'
+                      }`}
                     >
+                      <option value="">Select priority</option>
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
                       <option value="high">High</option>
                     </select>
+                    {errors.priority && (
+                      <p className="mt-1 text-sm text-red-600">{errors.priority}</p>
+                    )}
                   </div>
                 </div>
 
