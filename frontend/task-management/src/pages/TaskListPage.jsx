@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import TaskCard from '../components/TaskCard';
 import { useTask } from '../context/TaskContext';
 
 const TaskListPage = () => {
   const { tasks, deleteTask, toggleTaskComplete } = useTask();
+  const navigate = useNavigate();
   const [filteredTasks, setFilteredTasks] = useState(tasks);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -58,13 +59,20 @@ const TaskListPage = () => {
   };
 
   const handleEdit = (task) => {
-    console.log('Edit task:', task);
+    navigate(`/edit-task/${task.id}`);
   };
 
   const handleDelete = (taskId) => {
     if (window.confirm('Are you sure you want to delete this task?')) {
       deleteTask(taskId);
     }
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setStatusFilter('all');
+    setPriorityFilter('all');
+    setSortBy('dueDate');
   };
 
   const stats = {
@@ -111,7 +119,7 @@ const TaskListPage = () => {
 
           <div className="bg-white rounded-lg shadow mb-6">
             <div className="p-4 border-b border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
                   <input
                     type="text"
@@ -156,6 +164,14 @@ const TaskListPage = () => {
                     <option value="status">Sort by Status</option>
                     <option value="title">Sort by Title</option>
                   </select>
+                </div>
+                <div>
+                  <button
+                    onClick={clearFilters}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    Clear Filters
+                  </button>
                 </div>
               </div>
             </div>
