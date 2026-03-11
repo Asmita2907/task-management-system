@@ -5,6 +5,8 @@ const handleCreateTaskController = async (req, res) => {
   try {
     const task = new Task(req.body);
     const savedTask = await task.save();
+    console.log(req.body); // debug
+    
     res.status(201).send({ success: true, message: "Task created successfully", task: savedTask });
   } catch (error) {
     res.status(500).send({ success: false, message: "Error creating task", error: error.message });

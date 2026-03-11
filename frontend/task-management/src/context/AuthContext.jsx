@@ -22,46 +22,72 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = (email, password) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const foundUser = users.find(u => u.email === email && u.password === password);
-        
-        if (foundUser) {
-          const userData = { name: foundUser.name, email: foundUser.email };
-          setUser(userData);
-          setIsAuthenticated(true);
-          localStorage.setItem('user', JSON.stringify(userData));
-          resolve(userData);
-        } else {
-          reject(new Error('Invalid email or password'));
-        }
-      }, 1000);
-    });
+  const login = async (email, password) => {
+
+  const response = await fetch("http://localhost:5000/api/auth/login",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      email,
+      password
+    })
+  });
+
+  const data = await response.json();
+
+  if(!response.ok){
+    throw new Error(data.message || "Login failed");
+  }
+
+  const userData = {
+    name:data.user.name,
+    email:data.user.email
   };
 
-  const signup = (name, email, password) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        
-        if (users.find(u => u.email === email)) {
-          reject(new Error('User already exists with this email'));
-        } else {
-          const newUser = { name, email, password };
-          users.push(newUser);
-          localStorage.setItem('users', JSON.stringify(users));
-          
-          const userData = { name, email };
-          setUser(userData);
-          setIsAuthenticated(true);
-          localStorage.setItem('user', JSON.stringify(userData));
-          resolve(userData);
-        }
-      }, 1000);
-    });
+  setUser(userData);
+  setIsAuthenticated(true);
+
+  localStorage.setItem("user", JSON.stringify(userData));
+
+  return data;
+};
+
+
+  const signup = async (name, email, password) => {
+
+  const response = await fetch("http://localhost:5000/api/auth/signup", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name,
+      email,
+      password
+    })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Signup failed");
+  }
+
+  const userData = {
+    name: name,
+    email: email
   };
+
+  setUser(userData);
+  setIsAuthenticated(true);
+
+  localStorage.setItem("user", JSON.stringify(userData));
+
+  return data;
+};
+
 
   const logout = () => {
     setUser(null);
