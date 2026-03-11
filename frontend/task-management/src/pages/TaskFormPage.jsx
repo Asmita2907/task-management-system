@@ -30,17 +30,24 @@ const TaskFormPage = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  
+const handleSubmit = (e) => {
+  e.preventDefault();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isEditing) {
-      updateTask(id, formData);
-    } else {
-      // Force new tasks to start as "pending"
-      addTask({ ...formData, status: "pending" });
-    }
-    navigate("/tasks");
-  };
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (isEditing) {
+    updateTask(id, formData);
+  } else {
+    addTask({
+      ...formData,
+      status: "pending",
+      userId: user.id
+    });
+  }
+
+  navigate("/tasks");
+};
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -1,4 +1,3 @@
-// src/pages/TaskListPage.jsx
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -6,41 +5,36 @@ import TaskCard from "../components/TaskCard";
 import { useTask } from "../context/TaskContext";
 
 const TaskListPage = () => {
-  const { tasks, deleteTask, toggleTaskComplete } = useTask();
+  const { tasks, deleteTask, toggleTaskComplete, fetchTasks, loading } = useTask();
   const navigate = useNavigate();
-  const [filteredTasks, setFilteredTasks] = useState(tasks);
+  const [filteredTasks, setFilteredTasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [sortBy, setSortBy] = useState("dueDate");
 
-  useEffect(() => setFilteredTasks(tasks), [tasks]);
-
+  // Fetch tasks on component mount
   useEffect(() => {
-    let filtered = tasks;
+    fetchTasks();
+  }, []);
 
-    if (searchTerm) {
+  // Filter, search, and sort tasks
+  useEffect(() => {
+    let filtered = [...tasks];
+
+    if (searchTerm)
       filtered = filtered.filter(
         (t) =>
           t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           t.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    }
 
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((t) => t.status === statusFilter);
-    }
-
-    if (priorityFilter !== "all") {
-      filtered = filtered.filter((t) => t.priority === priorityFilter);
-    }
+    if (statusFilter !== "all") filtered = filtered.filter((t) => t.status === statusFilter);
+    if (priorityFilter !== "all") filtered = filtered.filter((t) => t.priority === priorityFilter);
 
     filtered.sort((a, b) => {
       if (sortBy === "dueDate") return new Date(a.dueDate) - new Date(b.dueDate);
-      if (sortBy === "priority") {
-        const order = { high: 0, medium: 1, low: 2 };
-        return order[a.priority] - order[b.priority];
-      }
+      if (sortBy === "priority") return { high: 0, medium: 1, low: 2 }[a.priority] - { high: 0, medium: 1, low: 2 }[b.priority];
       if (sortBy === "status") return a.status.localeCompare(b.status);
       if (sortBy === "title") return a.title.localeCompare(b.title);
       return 0;
@@ -50,10 +44,17 @@ const TaskListPage = () => {
   }, [tasks, searchTerm, statusFilter, priorityFilter, sortBy]);
 
   const handleEdit = (task) => navigate(`/edit-task/${task._id}`);
-  const handleDelete = (taskId) => {
-    if (window.confirm("Are you sure you want to delete this task?")) deleteTask(taskId);
-  };
+  const handleDelete = (taskId) => window.confirm("Delete this task?") && deleteTask(taskId);
   const handleToggleComplete = (taskId) => toggleTaskComplete(taskId);
+
+  // ✅ Show loading feedback
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen text-gray-500">
+        Loading tasks...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -82,9 +83,7 @@ const TaskListPage = () => {
                 />
               ))
             ) : (
-              <div className="text-center py-12 text-gray-500">
-                No tasks found
-              </div>
+              <div className="text-center py-12 text-gray-500">No tasks found</div>
             )}
           </div>
         </div>

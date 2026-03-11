@@ -1,65 +1,62 @@
 const Task = require("../models/Task");
 
-// CREATE TASK
+// Get tasks for a user
+const handleTaskListController = async (req, res) => {
+  try {
+    const tasks = await Task.find({ userId: req.params.userId });
+    res.json({ tasks });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Add task
 const handleCreateTaskController = async (req, res) => {
   try {
     const task = new Task(req.body);
-    const savedTask = await task.save();
-    console.log(req.body); // debug
-    
-    res.status(201).send({ success: true, message: "Task created successfully", task: savedTask });
-  } catch (error) {
-    res.status(500).send({ success: false, message: "Error creating task", error: error.message });
+    await task.save();
+    res.json({ task });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// GET ALL TASKS
-const handleTaskListController = async (req, res) => {
-  try {
-    const tasks = await Task.find();
-    res.status(200).send({ success: true, total: tasks.length, tasks });
-  } catch (error) {
-    res.status(500).send({ success: false, message: "Error fetching tasks", error: error.message });
-  }
-};
-
-// DELETE TASK
-const handleTaskDeleteController = async (req, res) => {
-  try {
-    const task = await Task.findByIdAndDelete(req.params.id);
-    if (!task) return res.status(404).send({ success: false, message: "Task not found" });
-    res.status(200).send({ success: true, message: "Task deleted successfully" });
-  } catch (error) {
-    res.status(500).send({ success: false, message: "Error deleting task", error: error.message });
-  }
-};
-
-// UPDATE TASK
+// Update task
 const handleTaskUpdateController = async (req, res) => {
   try {
     const task = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!task) return res.status(404).send({ success: false, message: "Task not found" });
-    res.status(200).send({ success: true, message: "Task updated successfully", task });
-  } catch (error) {
-    res.status(500).send({ success: false, message: "Error updating task", error: error.message });
+    res.json({ task });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
-// COMPLETE TASK
+// Delete task
+const handleTaskDeleteController = async (req, res) => {
+  try {
+    await Task.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Complete / toggle task
 const handleTaskCompleteController = async (req, res) => {
   try {
-    const task = await Task.findByIdAndUpdate(req.params.id, { status: "completed" }, { new: true });
-    if (!task) return res.status(404).send({ success: false, message: "Task not found" });
-    res.status(200).send({ success: true, message: "Task marked as completed", task });
-  } catch (error) {
-    res.status(500).send({ success: false, message: "Error completing task", error: error.message });
+    const task = await Task.findById(req.params.id);
+    task.status = task.status === "completed" ? "pending" : "completed";
+    await task.save();
+    res.json({ task });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
 module.exports = {
-  handleCreateTaskController,
   handleTaskListController,
-  handleTaskDeleteController,
+  handleCreateTaskController,
   handleTaskUpdateController,
+  handleTaskDeleteController,
   handleTaskCompleteController,
 };

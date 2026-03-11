@@ -9,10 +9,19 @@ const {
 
 const router = express.Router();
 
+// Get all tasks for a user
+router.get("/:userId", handleTaskListController);
+
+// Add task
 router.post("/addtask", handleCreateTaskController);
-router.get("/gettasks", handleTaskListController);
-router.delete("/deletetask/:id", handleTaskDeleteController);
-router.put("/updatetask/:id", handleTaskUpdateController);
-router.put("/completetask/:id", handleTaskCompleteController);
+
+// Update task
+router.put("/:id", handleTaskUpdateController);
+
+// Delete task
+router.delete("/:id", handleTaskDeleteController);
+
+// Complete / toggle task
+router.put("/:id/complete", handleTaskCompleteController);
 
 module.exports = router;
