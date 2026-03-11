@@ -1,23 +1,18 @@
 const express = require("express");
-const dbConnect = require("./database");   // import database connection
+require('dotenv').config();
+const cors = require("cors");
+const dbConnect = require("./database");
 const taskRoute = require("./routes/taskRoute");
-const app = express();
 
+const app = express();
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 app.use(express.json());
 
-// connect database
 dbConnect();
 
-// test route
-app.get("/", (req, res) => {
-  res.send("Task Management API Running");
-});
-
-// routes
 app.use("/task", taskRoute);
 
-const PORT = 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(5000, () => {
+  console.log("Server running on port 5000");
 });

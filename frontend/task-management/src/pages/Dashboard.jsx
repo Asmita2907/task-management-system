@@ -160,7 +160,7 @@ const Dashboard = () => {
               <div className="overflow-hidden">
                 <div className="space-y-3">
                   {recentTasks.map((task) => (
-                    <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+  <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-900">{task.title}</p>
                         <div className="flex items-center mt-1 space-x-2">

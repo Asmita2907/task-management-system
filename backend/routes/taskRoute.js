@@ -1,37 +1,18 @@
-
-const { 
+const express = require("express");
+const {
   handleCreateTaskController,
   handleTaskListController,
- 
   handleTaskDeleteController,
   handleTaskUpdateController,
-  handleTaskCompleteController
+  handleTaskCompleteController,
 } = require("../controllers/taskController");
 
-const express = require("express");
-
-// Route → connects URL to controller
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.send("Routing on task route page");
-});
-
-
-// create task
 router.post("/addtask", handleCreateTaskController);
-
-//get all task
 router.get("/gettasks", handleTaskListController);
-// delete task
-router.delete("/deletetask", handleTaskDeleteController);
-
-// update task
-router.put("/updatetask", handleTaskUpdateController);
-
-// mark task completed
-router.put("/completetask", handleTaskCompleteController);
-
-
+router.delete("/deletetask/:id", handleTaskDeleteController);
+router.put("/updatetask/:id", handleTaskUpdateController);
+router.put("/completetask/:id", handleTaskCompleteController);
 
 module.exports = router;

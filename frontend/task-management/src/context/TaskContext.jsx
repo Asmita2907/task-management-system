@@ -1,142 +1,112 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 
 const TaskContext = createContext();
 
 export const useTask = () => {
   const context = useContext(TaskContext);
   if (!context) {
-    throw new Error('useTask must be used within a TaskProvider');
+    throw new Error("useTask must be used within a TaskProvider");
   }
   return context;
 };
 
+const API_BASE = "http://localhost:5000/task";
+
 export const TaskProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
 
-  useEffect(() => {
-    const initialTasks = [
-      {
-        id: 1,
-        title: 'Complete project documentation',
-        description: 'Write comprehensive documentation for the new feature including API endpoints and user guide',
-        status: 'pending',
-        priority: 'high',
-        dueDate: '2026-03-15',
-        createdDate: '2026-03-01',
-        assignedTo: 'John Doe'
-      },
-      {
-        id: 2,
-        title: 'Review pull requests',
-        description: 'Review and approve pending pull requests from the team',
-        status: 'in-progress',
-        priority: 'medium',
-        dueDate: '2026-03-12',
-        createdDate: '2026-03-02',
-        assignedTo: 'Jane Smith'
-      },
-      {
-        id: 3,
-        title: 'Update dependencies',
-        description: 'Update all npm packages to their latest stable versions',
-        status: 'completed',
-        priority: 'low',
-        dueDate: '2026-03-20',
-        createdDate: '2026-03-03',
-        assignedTo: 'Mike Johnson'
-      },
-      {
-        id: 4,
-        title: 'Fix login bug',
-        description: 'Resolve the authentication issue reported by users',
-        status: 'pending',
-        priority: 'high',
-        dueDate: '2026-03-10',
-        createdDate: '2026-03-04',
-        assignedTo: 'Sarah Wilson'
-      },
-      {
-        id: 5,
-        title: 'Write unit tests',
-        description: 'Create unit tests for the new API endpoints',
-        status: 'in-progress',
-        priority: 'medium',
-        dueDate: '2026-03-18',
-        createdDate: '2026-03-05',
-        assignedTo: 'Tom Brown'
-      },
-      {
-        id: 6,
-        title: 'Design new landing page',
-        description: 'Create mockups and implement the new landing page design',
-        status: 'pending',
-        priority: 'medium',
-        dueDate: '2026-03-25',
-        createdDate: '2026-03-06',
-        assignedTo: 'Emily Davis'
+  // GET ALL TASKS
+  const fetchTasks = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/gettasks`);
+      if (res.data && res.data.tasks) {
+        setTasks(res.data.tasks);
       }
-    ];
-    setTasks(initialTasks);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
   }, []);
 
-  const addTask = (newTask) => {
-    const task = {
-      ...newTask,
-      id: Date.now(),
-      createdDate: new Date().toISOString().split('T')[0]
-    };
-    setTasks(prevTasks => [...prevTasks, task]);
+  // ADD TASK
+  const addTask = async (newTask) => {
+    try {
+      const res = await axios.post(`${API_BASE}/addtask`, newTask);
+      if (res.data && res.data.task) {
+        setTasks((prev) => [...prev, res.data.task]);
+      }
+    } catch (error) {
+      console.error("Error adding task:", error);
+    }
   };
 
-  const updateTask = (taskId, updatedTask) => {
-    setTasks(prevTasks => 
-      prevTasks.map(task => 
-        task.id === taskId ? { ...task, ...updatedTask } : task
-      )
-    );
+  // UPDATE TASK
+  const updateTask = async (taskId, updatedTask) => {
+    try {
+      const res = await axios.put(`${API_BASE}/updatetask/${taskId}`, updatedTask);
+      if (res.data && res.data.task) {
+        setTasks((prev) =>
+          prev.map((task) => (task._id === taskId ? res.data.task : task))
+        );
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
   };
 
-  const deleteTask = (taskId) => {
-    setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+  // DELETE TASK
+  const deleteTask = async (taskId) => {
+    try {
+      await axios.delete(`${API_BASE}/deletetask/${taskId}`);
+      setTasks((prev) => prev.filter((task) => task._id !== taskId));
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
   };
 
-  const toggleTaskComplete = (taskId) => {
-    setTasks(prevTasks => 
-      prevTasks.map(task => 
-        task.id === taskId 
-          ? { ...task, status: task.status === 'completed' ? 'pending' : 'completed' }
-          : task
-      )
-    );
+  // TOGGLE COMPLETE TASK
+  const toggleTaskComplete = async (taskId) => {
+    try {
+      const res = await axios.put(`${API_BASE}/completetask/${taskId}`);
+      if (res.data && res.data.task) {
+        setTasks((prev) =>
+          prev.map((task) => (task._id === taskId ? res.data.task : task))
+        );
+      }
+    } catch (error) {
+      console.error("Error completing task:", error);
+    }
   };
 
+  // GET TASK STATS (Dashboard)
   const getTaskStats = () => {
     const total = tasks.length;
-    const completed = tasks.filter(t => t.status === 'completed').length;
-    const inProgress = tasks.filter(t => t.status === 'in-progress').length;
-    const pending = tasks.filter(t => t.status === 'pending').length;
+    const completed = tasks.filter((t) => t.status === "completed").length;
+    const inProgress = tasks.filter((t) => t.status === "in-progress").length;
+    const pending = tasks.filter((t) => t.status === "pending").length;
 
     return {
       total,
       completed,
       inProgress,
       pending,
-      completionRate: total > 0 ? Math.round((completed / total) * 100) : 0
+      completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
     };
   };
 
   const value = {
     tasks,
+    fetchTasks,
     addTask,
     updateTask,
     deleteTask,
     toggleTaskComplete,
-    getTaskStats
+    getTaskStats,
   };
 
-  return (
-    <TaskContext.Provider value={value}>
-      {children}
-    </TaskContext.Provider>
-  );
+  return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
 };
